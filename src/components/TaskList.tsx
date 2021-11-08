@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { nanoid } from 'nanoid'
 
 import '../styles/tasklist.scss'
 
@@ -16,14 +17,31 @@ export function TaskList() {
 
   function handleCreateNewTask() {
     // Crie uma nova task com um id random, não permita criar caso o título seja vazio.
+    if (newTaskTitle.trim() !== '') {
+      const taskExists = tasks.filter(task => task.title === newTaskTitle)
+      if (taskExists.length > 0) {
+        alert(`Já existe uma tarefa cadastrada com o nome ${newTaskTitle}`)
+        return;
+      }
+      setTasks([...tasks, { id: tasks.length + 1, title: newTaskTitle, isComplete: false}])
+      setNewTaskTitle('')
+    }
   }
 
   function handleToggleTaskCompletion(id: number) {
     // Altere entre `true` ou `false` o campo `isComplete` de uma task com dado ID
+    const taskToConclude = tasks.filter(task => task.id === id)
+    const tasksToKeep = tasks.filter(task => task.id !== id)
+    taskToConclude[0].isComplete = !taskToConclude[0].isComplete
+    const joinTasks = [...tasksToKeep, taskToConclude[0]]
+    joinTasks.sort((a, b) => a.id - b.id);
+    setTasks(joinTasks)
   }
 
   function handleRemoveTask(id: number) {
     // Remova uma task da listagem pelo ID
+    const tasksToKeep = tasks.filter(task => task.id !== id);
+    setTasks(tasksToKeep);
   }
 
   return (
